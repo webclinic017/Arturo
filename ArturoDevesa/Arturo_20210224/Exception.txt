@@ -1,0 +1,14 @@
+Date : 2021-03-01 20:19:32.058714
+Method : loadTickerCollection
+Errror : Traceback (most recent call last):
+  File "Generic.pyc", line 68, in loadTickerCollection
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\TVISI\\Python\\ArturoDevesa\\Arturo_20210224\\TickerBasket.csv'
+
+-------------------------------------------------------------------------
+Date : 2021-03-01 20:19:32.062703
+Method : loadTickerCollection
+Errror : Traceback (most recent call last):
+  File "Generic.pyc", line 68, in loadTickerCollection
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\TVISI\\Python\\ArturoDevesa\\Arturo_20210224\\TickerBasket.csv'
+
+-------------------------------------------------------------------------

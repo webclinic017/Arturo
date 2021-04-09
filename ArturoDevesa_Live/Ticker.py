@@ -12,7 +12,7 @@ class Ticker():
             self.currency = None
             self.expiry = None
             # as per req        
-            self.qty=0 # global
+            self.qty=0 
             self.pip=0 # used aspip for currency and tickSize for stock
             self.spread=0
             self.target=0

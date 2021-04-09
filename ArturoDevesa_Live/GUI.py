@@ -23,6 +23,7 @@ class GUI():
 
             self.dgv_tickers = None
             self.dgv_calculation = None
+            self.dgv_trades = None
             self.cBox_showCalculationSymbols = None 
             
             self.txtBox_message=None
@@ -106,11 +107,10 @@ class GUI():
             self.scriptListTab = ttk.Frame(self.TabControl,width=self.width,height=self.calculatePer(per,self.heigth))
             self.calculationTab = ttk.Frame(self.TabControl,width=self.width,height=self.calculatePer(per,self.heigth))
             #Adding tab to tabControl
-            self.TabControl.add(self.messageTab, text ='Message')
-            self.TabControl.add(self.scriptListTab,text='Script')
             self.TabControl.add(self.tradeTab, text ='Trades')
+            self.TabControl.add(self.scriptListTab,text='Script')
             self.TabControl.add(self.calculationTab,text = 'Calculation')
-            
+            self.TabControl.add(self.messageTab, text ='Message')
             #add widget to messageTab
             self.txtBox_message = Text(self.messageTab,width=self.width,height=self.calculatePer(per,self.heigth))
             self.txtBox_message.pack()
@@ -135,10 +135,24 @@ class GUI():
             
             temp_frame_gridVew = ttk.Frame(self.calculationTab,width=self.width,height=self.calculatePer(70,self.heigth))
             temp_frame_gridVew.pack(expand = 1 ,fill = 'both')
+
+            temp_frame_gridVew_1 = ttk.Frame(self.tradeTab,width=self.width,height=self.calculatePer(70,self.heigth))
+            temp_frame_gridVew_1.pack(expand = 1 ,fill = 'both')
+
+            # set grid view to calculation on calulation tab
             self.dgv_calculation = GridView(temp_frame_gridVew)
             temp_heading = ['DT','Open','high','low','close','volume','EMA_long','EMA_Short','Stochastic','Stochastic signals']
             self.dgv_calculation.set_columns(temp_heading)
             self.dgv_calculation.treeview.place(x=1,y=1)
+
+            # set gridvew to trades table 
+
+            self.dgv_trades = GridView(temp_frame_gridVew_1)
+            temp_heading = ['OrderId','Parent_orderId','StopLoss_orderId','Target_orderId','Symbol','Action','P_dt','E_dt','P_qty','E_qty','P_price','E_price','Status']
+            self.dgv_trades.set_columns(temp_heading)
+            self.dgv_trades.treeview.place(x=1,y=1)
+
+
         except Exception as ex:
             Logs.WriteLog(traceback.format_exc(),"set_Tab_to_GUI()")
 
@@ -237,41 +251,41 @@ class GUI():
             self.txtBox_stochasticPeriod3.place(x=1100,y=100)
             
             #label
-            label7 = Tkinter.Label(self.TopFrame,text="Comm %")
+            label7 = Tkinter.Label(self.TopFrame,text="Long Exit (stoch)")
             label7.place(x=350,y=160)
 
             #textBox
-            self.txtBox_slippage_text.set("0")
-            self.txtBox_slippage = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_slippage_text)
-            self.txtBox_slippage.place(x=350,y=180)
+            self.txtBox_longExitstoch_text.set("20")
+            self.txtBox_longExitstoch_text = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_longExitstoch_text)
+            self.txtBox_longExitstoch_text.place(x=350,y=180)
 
             #label
-            label8 = Tkinter.Label(self.TopFrame,text="Trade Qty")
+            label8 = Tkinter.Label(self.TopFrame,text="Short Exit (stoch)")
             label8.place(x=500,y=160)
 
             #textBox
-            self.txtBox_tradeQty_text.set("100000")
-            self.txtBox_tradeQty = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_tradeQty_text)
-            self.txtBox_tradeQty.place(x=500,y=180)
+            self.txtBox_shortExitstoch_text.set("80")
+            self.txtBox_shortExitstoch_text = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_shortExitstoch_text)
+            self.txtBox_shortExitstoch_text.place(x=500,y=180)
 
-            #label
-            label9 = Tkinter.Label(self.TopFrame,text="Long Exit (stoch)")
-            label9.place(x=650,y=160)
+            # #label
+            # label9 = Tkinter.Label(self.TopFrame,text="Long Exit (stoch)")
+            # label9.place(x=650,y=160)
 
-            #textBox
+            # #textBox
             
-            self.txtBox_longExitstoch_text.set("80")
-            self.txtBox_longExitstoch = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_longExitstoch_text)
-            self.txtBox_longExitstoch.place(x=650,y=180)
+            # self.txtBox_longExitstoch_text.set("80")
+            # self.txtBox_longExitstoch = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_longExitstoch_text)
+            # self.txtBox_longExitstoch.place(x=650,y=180)
 
-            #label
-            label10 = Tkinter.Label(self.TopFrame,text="Short Exit (stoch)")
-            label10.place(x=800,y=160)
+            # #label
+            # label10 = Tkinter.Label(self.TopFrame,text="Short Exit (stoch)")
+            # label10.place(x=800,y=160)
 
-            #TextBox
-            self.txtBox_shortExitstoch_text.set("20")
-            self.txtBox_shortExitstoch = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_shortExitstoch_text)
-            self.txtBox_shortExitstoch.place(x=800,y=180)
+            # #TextBox
+            # self.txtBox_shortExitstoch_text.set("20")
+            # self.txtBox_shortExitstoch = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_shortExitstoch_text)
+            # self.txtBox_shortExitstoch.place(x=800,y=180)
 
             # #label
             # label11 = Tkinter.Label(self.TopFrame,text="Start Trade (hr/Min)")

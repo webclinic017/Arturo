@@ -42,6 +42,7 @@ def loadTickerBasket(fileName):
                 objTicker.secType = ticker['SecType']
                 objTicker.exchange = ticker['Exchange']
                 objTicker.currency = ticker['Currency']
+                objTicker.qty = int(ticker['Quantity'])
                 #objTicker.expiry = ticker['Expiry']
                 #objTicker.expiry = GlobalVariables.trade_qty
                 objTicker.spread = float(ticker['Spread'])
@@ -136,11 +137,11 @@ def createNewBar(TF,objTicker,dt,open_ ,high,low,close,volume,tickSize):
             bars.close = roundToTickSize(objTicker.construct_ohlc.close,tickSize)
             bars.volume = objTicker.construct_ohlc.volume
             if(len(objTicker.ohlc) > 0):
-                bars.prev_dt = sorted(objTicker.ohlc.keys())[-1]# get last vlaue from dictionary 
+                bars.dt_prev = sorted(objTicker.ohlc.keys())[-1]# get last vlaue from dictionary 
         
-            if(bars.prev_dt == None):# if prev_dt equals to None
-                bars.prev_dt  = bars.dt + timedelta(seconds=-GlobalVariables.TF.get(int(objTicker.timeFrame))) # subtract seconds
-            if(not bars.prev_dt in objTicker.ohlc):
+            if(bars.dt_prev == None):# if prev_dt equals to None
+                bars.dt_prev  = bars.dt + timedelta(seconds=-GlobalVariables.TF.get(int(objTicker.timeFrame))) # subtract seconds
+            if(not bars.dt_prev in objTicker.ohlc):
                 objTicker.ohlc[bars.dt] = bars # add new value to ditionary 
             objTicker.construct_ohlc.open_ = objTicker.construct_ohlc.high = objTicker.construct_ohlc.low = objTicker.construct_ohlc.close = objTicker.construct_ohlc.volume = 0
         return bars
@@ -175,3 +176,71 @@ def roundToTickSize(price,tickSize):
         return round(price * div)/div
     except Exception as ex:
         Log.WriteLog(traceback.format_exc(),"roundToTickSize")
+
+def crossOver(prev_emaLong,prev_emashort,emaLong,emaShort):
+    try:
+        if(True or prev_emashort >= prev_emaLong and emaLong > emaShort):
+            return GlobalVariables.SELL
+        elif(prev_emaLong >= prev_emashort and emaShort > emaLong):
+            return GlobalVariables.BUY
+        return ""
+    except Exception as ex:
+        Log.WriteLog(traceback.format_exc(),"crossOver()")
+
+def checkForExit(flag,stochastic,value):
+    try:
+        if(flag > 0):
+            if(stochastic > value):
+                return True
+        else:
+            if(stochastic < value):
+                return True
+        return False
+    except Exception as ex:
+        Log.WriteLog(ex,"checkForExit")
+
+def calculate_sl_pip(action ,price,sl_pip,tickSize,):
+    try:
+        temp = 0
+        if(action == GlobalVariables.BUY):
+            temp = price - (sl_pip * tickSize)
+        else:
+            temp = price + (sl_pip * tickSize)
+        return roundToTickSize(temp,tickSize)
+    except Exception as ex:
+        Log.WriteLog(ex,"checkfor_sl_exit_pip")
+
+def calculate_tgt_pip(action ,price,tgt_pip,tickSize,):
+    try:
+        temp = 0
+        if(action == GlobalVariables.BUY):
+            temp = price + (tgt_pip * tickSize)
+        else:
+            temp = price - (tgt_pip * tickSize)
+        return roundToTickSize(temp,tickSize)
+    except Exception as ex:
+        Log.WriteLog(ex,"checkfor_sl_exit_pip")
+
+def calculate_SL(action,price,per,tickSize):
+
+    try:
+        temp = 0
+        if(action == GlobalVariables.BUY):
+            temp = price -  (price * per / 100)
+        else:
+            temp = price +  (price * per / 100)
+        return roundToTickSize(temp,tickSize)
+    except Exception as ex:
+        Log.WriteLog(traceback.format_exc(),"calculate_SL")
+
+def calculate_tgt(action,price,per,tickSize):
+
+    try:
+        temp = 0
+        if(action == GlobalVariables.BUY):
+            temp = price +  (price * per / 100)
+        else:
+            temp = price -  (price * per / 100)
+        return roundToTickSize(temp,tickSize)
+    except Exception as ex:
+        Log.WriteLog(traceback.format_exc(),"calculate_tgt")

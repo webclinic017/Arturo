@@ -77,6 +77,7 @@ class Generic:
                     objTicker.currency = ticker['Currency']
                     #objTicker.expiry = ticker['Expiry']
                     #objTicker.expiry = GlobalVariables.trade_qty
+                    objTicker.qty = int(ticker['Quantity'])
                     objTicker.spread = float(ticker['Spread'])
                     objTicker.pip = float(ticker['TickSize'])
                     #objTicker.target = float(ticker['Target'])

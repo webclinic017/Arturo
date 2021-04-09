@@ -15,6 +15,8 @@ import time
 from datetime import datetime , timedelta
 from Bar import Bar
 from collections import OrderedDict
+from Orders import Orders
+
 class Main(EWrapper,EClient,GUI):
     
     def __init__(self):
@@ -22,9 +24,10 @@ class Main(EWrapper,EClient,GUI):
             objGeneric.load_config()
             objGeneric.loadTickerBasket(GlobalVariables.tickerBasket)
             EClient.__init__(self,wrapper=self)
-            GUI.__init__(self,1000,1600)
+            GUI.__init__(self,1000,1400)
             self.IBConnect(GlobalVariables.ib_host,GlobalVariables.ib_port,random.randint(10,1000))
             self.display_ticker()
+            self.objOrder = Orders()
             self.mainForm.mainloop()
         except Exception as ex:
             Log.WriteLog("__init__",traceback.format_exc())
@@ -75,14 +78,26 @@ class Main(EWrapper,EClient,GUI):
             update_ltp_thread.start()        
         except Exception as ex:
             Log.WriteLog("update_ltp_to_table_Thread",traceback.format_exc())
-            
+
+    def update_order_to_GUI(self,objOrder):
+        try:
+            for row in self.dgv_trades.treeview.get_children():
+                OrderId = int(self.dgv_trades.treeview.set(row, '#1'))
+                if(OrderId == objOrder.orderId):
+                    self.dgv_trades.set_column_value(row,"#8",objOrder.e_dt) 
+                    self.dgv_trades.set_column_value(row,"#10",objOrder.e_qty)        
+                    self.dgv_trades.set_column_value(row,"#12",objOrder.e_price)        
+                    self.dgv_trades.set_column_value(row,"#13",objOrder.status)
+        except Exception as ex:
+            Log.WriteLog(traceback.format_exc(),"update_order_to_GUI")        
+
     def reqHistoryData(self):
         try:
             for item_ticker in GlobalVariables.ticker_collection.values():
                 self.reqHistoricalData(item_ticker.tickerID,item_ticker.objIBContract,datetime.now().strftime("%Y%m%d %H:%M:%S"),"1 D",GlobalVariables.selectedTimeFrame, "MIDPOINT", 1, 1, False, [])
         except Exception as ex:
             Log.WriteLog(traceback.format_exc(),"reqHistoryData")
-            
+ 
     def setParam(self):
         try:
             GlobalVariables.ema_LongPeriod  = int(self.txtBox_emaPeriodLong_text.get())
@@ -93,8 +108,8 @@ class Main(EWrapper,EClient,GUI):
             GlobalVariables.stochasticPeriod = GlobalVariables.stochasticPeriod1 + GlobalVariables.stochasticPeriod3
             GlobalVariables.selectedTimeFrame =  self.selectedEntryTF.get()
             GlobalVariables.TF = GlobalVariables.selectedTimeFrame_collection[GlobalVariables.selectedTimeFrame]
-            GlobalVariables.commPer = float(self.txtBox_slippage_text.get()) # name is slippage but used for comm
-            GlobalVariables.trade_qty = int(self.txtBox_tradeQty_text.get())
+            # GlobalVariables.commPer = float(self.txtBox_slippage_text.get()) # name is slippage but used for comm
+            # GlobalVariables.trade_qty = int(self.txtBox_tradeQty_text.get())
             GlobalVariables.longExitStoch = int(self.txtBox_longExitstoch_text.get())
             GlobalVariables.ShortExitStoch = int(self.txtBox_shortExitstoch_text.get())
         except Exception as ex:
@@ -105,34 +120,40 @@ class Main(EWrapper,EClient,GUI):
             if(True):
                 if(len(objTicker.ohlc) > 0):
                     for objBar in objTicker.ohlc.values():
-                        objTicker.handyData_close.update({objBar.dt : objBar.close})
-                        objTicker.handyData_high.update({objBar.dt : objBar.high})
-                        objTicker.handyData_low.update({objBar.dt : objBar.low})
-                        if(len(objTicker.handyData_close) >= GlobalVariables.stochasticPeriod):
-                            objBar.stochastic , objBar.stochastic_signal =  objGeneric.calculate_Stochastic([x for x in objTicker.handyData_high.values()],[x for x in objTicker.handyData_low.values()],[x for x in objTicker.handyData_close.values()],objTicker.pip,GlobalVariables.stochasticPeriod1,GlobalVariables.stochasticPeriod2,GlobalVariables.stochasticPeriod3) 
-                            for key in sorted(objTicker.handyData_close.keys()):
-                                objTicker.handyData_close.pop(key)
-                                objTicker.handyData_high.pop(key)
-                                objTicker.handyData_low.pop(key)
-                                #print(key)
-                                break
-                        if(len(objTicker.handyData_close) >= GlobalVariables.ema_LongPeriod):
-                            if(objBar.dt_prev in objTicker.ohlc):
-                                objBarPrev = objTicker.ohlc[objBar.dt_prev]
-                                if(objBarPrev.ema_Long == 0):
-                                    objBar.ema_Long = objGeneric.sma([x for x in objTicker.handyData_close.values()],GlobalVariables.ema_LongPeriod,objTicker.pip)
-                                else:
-                                    objBar.ema_Long = objGeneric.ema(objBar.close,objBarPrev.ema_Long,GlobalVariables.ema_LongPeriod,objTicker.pip)
-                        if(len(objTicker.handyData_close) >= GlobalVariables.ema_ShortPeriod):
-                            if(objBar.dt_prev in objTicker.ohlc):
-                                objBarPrev = objTicker.ohlc[objBar.dt_prev]
-                                if(objBarPrev.ema_Short == 0):
-                                    objBar.ema_Short = objGeneric.sma([x for x in objTicker.handyData_close.values()],GlobalVariables.ema_ShortPeriod,objTicker.pip)
-                                else:
-                                    objBar.ema_Short = objGeneric.ema(objBar.close,objBarPrev.ema_Short,GlobalVariables.ema_ShortPeriod,objTicker.pip)
+                        self.calculation(objTicker,objBar)
             self.messageToGUI(objTicker.symbol+"  initial calculatio done !")
         except Exception as ex:
             Log.WriteLog(traceback.format_exc(),"initCalculation")
+
+    def calculation(self,objTicker,objBar):
+        try:
+            objTicker.handyData_close.update({objBar.dt : objBar.close})
+            objTicker.handyData_high.update({objBar.dt : objBar.high})
+            objTicker.handyData_low.update({objBar.dt : objBar.low})
+            if(len(objTicker.handyData_close) >= GlobalVariables.stochasticPeriod):
+                objBar.stochastic , objBar.stochastic_signal =  objGeneric.calculate_Stochastic([x for x in objTicker.handyData_high.values()],[x for x in objTicker.handyData_low.values()],[x for x in objTicker.handyData_close.values()],objTicker.pip,GlobalVariables.stochasticPeriod1,GlobalVariables.stochasticPeriod2,GlobalVariables.stochasticPeriod3) 
+                for key in sorted(objTicker.handyData_close.keys()):
+                    objTicker.handyData_close.pop(key)
+                    objTicker.handyData_high.pop(key)
+                    objTicker.handyData_low.pop(key)
+                        #print(key)
+                    break
+                if(len(objTicker.handyData_close) >= GlobalVariables.ema_LongPeriod):
+                    if(objBar.dt_prev in objTicker.ohlc):
+                        objBarPrev = objTicker.ohlc[objBar.dt_prev]
+                        if(objBarPrev.ema_Long == 0):
+                            objBar.ema_Long = objGeneric.sma([x for x in objTicker.handyData_close.values()],GlobalVariables.ema_LongPeriod,objTicker.pip)
+                        else:
+                            objBar.ema_Long = objGeneric.ema(objBar.close,objBarPrev.ema_Long,GlobalVariables.ema_LongPeriod,objTicker.pip)
+                if(len(objTicker.handyData_close) >= GlobalVariables.ema_ShortPeriod):
+                    if(objBar.dt_prev in objTicker.ohlc):
+                        objBarPrev = objTicker.ohlc[objBar.dt_prev]
+                        if(objBarPrev.ema_Short == 0):
+                            objBar.ema_Short = objGeneric.sma([x for x in objTicker.handyData_close.values()],GlobalVariables.ema_ShortPeriod,objTicker.pip)
+                        else:
+                            objBar.ema_Short = objGeneric.ema(objBar.close,objBarPrev.ema_Short,GlobalVariables.ema_ShortPeriod,objTicker.pip)              
+        except Exception as ex:
+            Log.WriteLog(traceback.format_exc(),"calculation")
     
     def set_dt_prev_next(self,objTicker):
         try:
@@ -152,59 +173,107 @@ class Main(EWrapper,EClient,GUI):
             if(True):
                 if(objBar.stochastic == 0):
                     return
-                if(objBar.prev_dt in objTicker.ohlc):
-                    objBarPrev = objTicker.ohlc[objBar.prev_dt]
-                    if(objTicker.orderId == 0 and objBar.dt >= datetime(objBar.dt.year,objBar.dt.month,objBar.dt.day,GlobalVariables.startTradeHr,GlobalVariables.startTradeMin,0)
-                       and objBar.dt < datetime(objBar.dt.year,objBar.dt.month,objBar.dt.day,GlobalVariables.endTradeHr,GlobalVariables.endTradeMin,0) ):
-                        
-                        action = GlobalVariables.objGeneric.crossOver(objBarPrev.ema_Long,objBarPrev.ema_Short,objBar.ema_Long,objBar.ema_Short)
+                if(objBar.dt_prev in objTicker.ohlc):
+                    objBarPrev = objTicker.ohlc[objBar.dt_prev]
+                    if(objTicker.orderId == 0 and objBar.dt >= datetime(objBar.dt.year,objBar.dt.month,objBar.dt.day,objTicker.startTradeHr,objTicker.startTradeMin,0)
+                       and objBar.dt < datetime(objBar.dt.year,objBar.dt.month,objBar.dt.day,objTicker.endTradeHr,objTicker.endTradeMin,0) ): # should check for entry order or not 
+                        action = objGeneric.crossOver(objBarPrev.ema_Long,objBarPrev.ema_Short,objBar.ema_Long,objBar.ema_Short) # check for entry order
                         if(len(action) > 0):
-                            GlobalVariables.objOrder.createEntryOrder(objTicker,objBar,action)
-                        elif(objTicker.orderId > 0):
-                            objEntryOrder = GlobalVariables.order_collections[objTicker.orderId]
-                            action = GlobalVariables.objGeneric.crossOver(objBarPrev.ema_Long,objBarPrev.ema_Short,objBar.ema_Long,objBar.ema_Short)
-                            
-                            if(GlobalVariables.objGeneric.checkfor_sl_exit(objEntryOrder.action,objBar,objEntryOrder.sl)):
-                                GlobalVariables.objOrder.createExitOrder(objBar,objTicker,objEntryOrder,"SL")
-                                return
-                            if(GlobalVariables.objGeneric.checkfor_tgt_exit(objEntryOrder.action,objBar,objEntryOrder.target)):
-                                GlobalVariables.objOrder.createExitOrder(objBar,objTicker,objEntryOrder,"TGT")
-                                return
-                            if(objTicker.isEMAExit == "TRUE" and objEntryOrder.action == GlobalVariables.BUY and action == GlobalVariables.SELL):
-                                GlobalVariables.objOrder.createExitOrder(objBar,objTicker,objEntryOrder,"EMA_EXIT")
-                            elif(objTicker.isEMAExit == "TRUE" and objEntryOrder.action == GlobalVariables.SELL and action == GlobalVariables.BUY):
-                                GlobalVariables.objOrder.createExitOrder(objBar,objTicker,objEntryOrder,"EMA_EXIT")
+                            objTicker.orderId = GlobalVariables.OrderId
+                            objEntryOrder = self.objOrder.createEntryOrder(objTicker,objBar,action) # create entry order
+                            objStopLossOrder = self.objOrder.create_stopLossOrder(objTicker,objEntryOrder) # create stopLoss order
+                            objTargetOrder = self.objOrder.create_targetOrder(objTicker,objEntryOrder) # create target order
+                            #shoot orders to IB 
+                            objEntryOrder.shoot_parent_orders_to_IB(objEntryOrder)
+                            objStopLossOrder.shoot_stopLoss_order_to_IB(objStopLossOrder)
+                            objTargetOrder.shooty_target_order_to_IB(objTargetOrder)
+
+                            self.placeOrder(objEntryOrder.orderId,objTicker.objIBContract,objEntryOrder.objIBOrder)
+                            self.placeOrder(objStopLossOrder.orderId,objTicker.objIBContract,objStopLossOrder.objIBOrder)
+                            self.placeOrder(objTargetOrder.orderId,objTicker.objIBContract,objTargetOrder.objIBOrder)
+
+                            # display order on GUI
+                            self.display_order_to_GUI(objEntryOrder)
+                            self.display_order_to_GUI(objStopLossOrder)
+                            self.display_order_to_GUI(objTargetOrder)
+                            # req market data after entry order
+                            self.reqMktData(objTicker.tickerID,objTicker.objIBContract,"",False,False,[])
+
+                    elif(objTicker.orderId > 0):
+                        objEntryOrder = GlobalVariables.order_collections[objTicker.orderId]
+                        objOrder = objEntryOrder.shoot_exit_order_to_IB(objEntryOrder)
+                        if(not objOrder == None):
+                            self.placeOrder(objOrder.orderId,objTicker.objIBContract,objOrder.objIBOrder)                     
+                        action = objGeneric.crossOver(objBarPrev.ema_Long,objBarPrev.ema_Short,objBar.ema_Long,objBar.ema_Short)
+                        # comment SL & tgt as IB will manage it                             
+                        # if(GlobalVariables.objGeneric.checkfor_sl_exit(objEntryOrder.action,objBar,objEntryOrder.sl)):
+                        #     GlobalVariables.objOrder.createExitOrder(objBar,objTicker,objEntryOrder,"SL")
+                        #     return
+                        # if(GlobalVariables.objGeneric.checkfor_tgt_exit(objEntryOrder.action,objBar,objEntryOrder.target)):
+                        #     GlobalVariables.objOrder.createExitOrder(objBar,objTicker,objEntryOrder,"TGT")
+                        #     return
+                        if(objTicker.isEMAExit == "TRUE" and objEntryOrder.action == GlobalVariables.BUY and action == GlobalVariables.SELL):
+                            objOrder = objEntryOrder.shoot_exit_order_to_IB(objEntryOrder)
+                            if(not objOrder == None):
+                                self.placeOrder(objOrder.orderId,objOrder.objIBContract,objOrder.objIBOrder)                            
+                            #GlobalVariables.objOrder.createExitOrder(objBar,objTicker,objEntryOrder,"EMA_EXIT")
+                        elif(objTicker.isEMAExit == "TRUE" and objEntryOrder.action == GlobalVariables.SELL and action == GlobalVariables.BUY):
+                            objOrder = objEntryOrder.shoot_exit_order_to_IB(objEntryOrder)
+                            if(not objOrder == None):
+                                self.placeOrder(objOrder.orderId,objOrder.objIBContract,objOrder.objIBOrder)
                                 
-                            if(objTicker.isStochExit == "TRUE" and objEntryOrder.action == GlobalVariables.BUY):
-                                if(objTicker.isExit == False):
-                                    objTicker.isExit =  GlobalVariables.objGeneric.checkForExit(1,objBar.stochastic,GlobalVariables.longExitStoch)
-                                else:
-                                    p =  GlobalVariables.objGeneric.checkForExit(-1,objBar.stochastic,GlobalVariables.longExitStoch)
-                                    if(p == True):
-                                        GlobalVariables.objOrder.createExitOrder(objBar,objTicker,objEntryOrder,"STOCH_EXIT")
-                            elif(objEntryOrder.action == GlobalVariables.SELL):
-                                if(objTicker.isExit == False):
-                                    objTicker.isExit =  GlobalVariables.objGeneric.checkForExit(-1,objBar.stochastic,GlobalVariables.ShortExitStoch)
-                                else:
-                                    p =  GlobalVariables.objGeneric.checkForExit(1,objBar.stochastic,GlobalVariables.ShortExitStoch)
-                                    if(p == True):
-                                        GlobalVariables.objOrder.createExitOrder(objBar,objTicker,objEntryOrder,"STOCH_EXIT")
-                        elif(objBar.dt > datetime(objBar.dt.year,objBar.dt.month,objBar.dt.day,GlobalVariables.EODExitHr,GlobalVariables.EODExitMin,0)):
+                        if(objTicker.isStochExit == "TRUE" and objEntryOrder.action == GlobalVariables.BUY):
+                            if(objTicker.isExit == False):
+                                objTicker.isExit =  objGeneric.checkForExit(1,objBar.stochastic,GlobalVariables.longExitStoch)
+                            else:
+                                p =  objGeneric.checkForExit(-1,objBar.stochastic,GlobalVariables.longExitStoch)
+                                if(p == True):
+                                    objOrder = objEntryOrder.shoot_exit_order_to_IB(objEntryOrder)
+                                    if(not objOrder == None):
+                                        self.placeOrder(objOrder.orderId,objOrder.objIBContract,objOrder.objIBOrder)
+                        elif(objEntryOrder.action == GlobalVariables.SELL):
+                            if(objTicker.isExit == False):
+                                objTicker.isExit =  objGeneric.checkForExit(-1,objBar.stochastic,GlobalVariables.ShortExitStoch)
+                            else:
+                                p =  objGeneric.checkForExit(1,objBar.stochastic,GlobalVariables.ShortExitStoch)
+                                if(p == True):
+                                    objOrder = objEntryOrder.shoot_exit_order_to_IB(objEntryOrder)
+                                    if(not objOrder == None):
+                                        self.placeOrder(objOrder.orderId,objOrder.objIBContract,objOrder.objIBOrder)
+                        elif(objBar.dt > datetime(objBar.dt.year,objBar.dt.month,objBar.dt.day,objTicker.EODExitHr,objTicker.EODExitMin,0)):
                             for ticker in GlobalVariables.ticker_collection.values():
                                 if(ticker.orderId > 0):
                                     objEntryOrder = GlobalVariables.order_collections[ticker.orderId]
-                                    GlobalVariables.objOrder.createExitOrder(objBar,objTicker,objEntryOrder,"EOD")
+                                    objOrder = objEntryOrder.shoot_exit_order_to_IB(objEntryOrder)
+                                    if(not objOrder == None):
+                                        self.placeOrder(objOrder.orderId,objOrder.objIBContract,objOrder.objIBOrder)
         except Exception as ex:
             Log.WriteLog(traceback.format_exc(),"Simulate")
+
+    def set_trading_param(self,objTicker):
+        try:
+            GlobalVariables.startTradeHr = objTicker.startTradeHr
+            GlobalVariables.startTradeMin = objTicker.startTradeMin
+            GlobalVariables.endTradeHr = objTicker.endTradeHr
+            GlobalVariables.endTradeMin = objTicker.endTradeMin
+            GlobalVariables.EODExitHr = objTicker.EODExitHr
+            GlobalVariables.EODExitMin = objTicker.EODExitMin
+        except Exception as ex:
+            Log.WriteLog(traceback.format_exc(),"set_trading_param")
+
+    def display_order_to_GUI(self,objOrder):
+        try:
+            self.dgv_trades.addRows([[objOrder.orderId,objOrder.parentOrderId,objOrder.stoplossOrderId,objOrder.targetOrderId,objOrder.symbol,objOrder.action,objOrder.p_dt,objOrder.e_dt,objOrder.p_qty,objOrder.e_qty,objOrder.p_price,objOrder.e_price,objOrder.status]])
+        except Exception as ex:
+            Log.WriteLog(traceback.format_exc(),"display_order_to_GUI")
+
     #IB call back
         
     @iswrapper
     def error(self,reqId: TickerId , errorCode : int , errorString : str):
         try:
-            self.messageToGUI(errorString)
-            
+            self.messageToGUI(errorString)        
             print("@ => errorCode : "+str(errorCode)+" message : "+errorString)
-
             if(errorCode == 504):
                 self.IBConnect(GlobalVariables.ib_host,GlobalVariables.ib_port,random.randint(10,1000))
         except Exception as ex:
@@ -225,10 +294,6 @@ class Main(EWrapper,EClient,GUI):
                 if(reqId in GlobalVariables.ticker_collection):
                     objTicker = GlobalVariables.ticker_collection[reqId]
                     objTicker.ltp = price
-                if(datetime.now() > GlobalVariables.IB_DateTime):
-                    GlobalVariables.IB_DateTime += timedelta(seconds=5)
-                    #print(datetime.now(),"Test")
-                    self.update_ltp_to_table_Thread()
         except Exception as ex:
             Log.WriteLog("tickPrice",traceback.format_exc())
 
@@ -276,15 +341,38 @@ class Main(EWrapper,EClient,GUI):
                     if(not objBar == None):
                         # check for new trade or exit trade
                         objTicker.ohlc[objBar.dt] = objBar
-                        print(objTicker.ohlc.keys())
-                        print("Bar constacted",objBar.dt)
-                        self.Simulate(objTicker, objBar)
+
+                        # print(objTicker.ohlc.keys())
+                        print("Bar constructed for symbol : ",objTicker.symbol," DT : ",objBar.dt)
+                        self.calculation(objTicker, objBar)
+                        self.Simulate(objTicker,objBar)
                     
         except Exception as ex:
             Log.WriteLog(traceback.format_exc(),"realtimeBar")
     
+    @iswrapper
+    def nextValidId(self, orderId: int):
+        try:
+            GlobalVariables.OrderId = orderId
+        except Exception as ex:
+            Log.WriteLog(traceback.format_exc(),"nextValidId")
+
+    @iswrapper
+    def orderStatus(self, orderId: OrderId, status: str, filled: float,remaining: float, avgFillPrice: float, permId: int,parentId: int, lastFillPrice: float, clientId: int,whyHeld: str, mktCapPrice: float):
+        try:
+            print(orderId, status, filled,remaining, avgFillPrice, permId,parentId, lastFillPrice, clientId,whyHeld, mktCapPrice)
+            if(orderId in GlobalVariables.order_collections):
+                objOrder = GlobalVariables.order_collections[orderId]
+                if(not objOrder.status == GlobalVariables.ORDER_STATUS_FILLED):
+                    objOrder.status = status.upper()
+                    objOrder.e_qty = filled
+                    objOrder.e_price = avgFillPrice
+                    objOrder.e_dt = str(datetime.now())
+                    self.update_order_to_GUI(objOrder)
+        except Exception as ex:
+            Log.WriteLog(traceback.format_exc(),"orderStatus")
     #Event
-    
+
     def btn_start_clickEvent(self):
         try:
             self.setParam()
@@ -305,6 +393,13 @@ class Main(EWrapper,EClient,GUI):
             Log.WriteLog(traceback.format_exc(),"btn_showCalculation_clickEvent()")
 
 
+ 
 main = Main()
 
 
+#  Parameters at ticker level remove from global level - Done
+#  Constructed -  Done
+#  Order place to IB - 
+#  Back test order and live order verification -  
+#  Set GUI - 
+#  Comments in source code - 

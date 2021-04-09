@@ -133,6 +133,8 @@ class GUI():
         except Exception as ex:
             Log.WriteLog(traceback.format_exc(),"set_table_to_scriptTab")
 
+    
+
     def set_Top_Frame_GUI(self):
         try:
             #Button

@@ -11,7 +11,7 @@ from datetime import datetime , timedelta
 
 def load_config():
     try:
-        f = open('config.json')
+        f = open(os.getcwd()+'\\config.json')
         data = json.load(f)
         GlobalVariables.ib_host = data["ib_host"]
         GlobalVariables.ib_port = int(data["ib_port"])

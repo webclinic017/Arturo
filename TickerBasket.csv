@@ -1,0 +1,3 @@
+Symbol,SecType,Exchange,Currency,Quantity,TickSize,StopLoss,Target,Spread,Start_Time_Hr,Start_Time_Min,Stop_Time_Hr,Stop_Time_Min,EOD_Hr,EOD_Min,weekDays,isEmaExit,isStochExit,Status
+GBP,CASH,IDEALPRO,USD,20000,0.0001,25,1,5,7,30,23,0,23,0,"mon,tue,wed,thu,fri",TRUE,FALSE,A
+EUR,CASH,IDEALPRO,USD,20000,0.0001,25,1,5,7,30,23,0,23,0,"mon,tue,wed,thu,fri",FALSE,TRUE,I

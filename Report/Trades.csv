@@ -1,0 +1,1 @@
+OrderID,Parent_OrderID,Symbol,Action,WeekDay,p_dt,p_price,p_qty,Pip/Points,NET,Comm,Status,StopLoss,Target

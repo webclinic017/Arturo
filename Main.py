@@ -39,6 +39,7 @@ class Main(GUI):
     def Simulate(self):
         try:
             for dt in GlobalVariables.DateTime_collection.keys():
+                print(dt)
                 for objTicker in GlobalVariables.ticker_collection.values():
                     weekDay_name = (calendar.day_name[dt.weekday()][:3]).upper()
                     if(not weekDay_name in  objTicker.weekDays):

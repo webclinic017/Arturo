@@ -29,7 +29,10 @@ class Generic:
                         for ohlc in reader:
                             objBar = Bars()
                             objBar.dt = ohlc["DateTime"]
-                            objBar.dt =  (datetime.strptime(objBar.dt,'%m/%d/%Y %H:%M:%S %p'))
+                            
+                            objBar.dt =  (datetime.strptime(objBar.dt,'%m/%d/%Y %H:%M'))
+                            #objBar.dt =  (datetime.strptime(objBar.dt,'%m/%d/%Y %H:%M:%S %p'))
+
                             objBar.open_ = float(ohlc["Open"])
                             objBar.high = float(ohlc["High"])
                             objBar.low = float(ohlc["Low"])

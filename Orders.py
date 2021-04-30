@@ -12,6 +12,7 @@ class Orders():
             self.p_dt = 0
             self.p_qty = 0
             self.p_price=0
+            self.e_price=0
             self.sl = 0
             self.target = 0
             self.Points =0
@@ -43,7 +44,8 @@ class Orders():
                     price = objBar.close + temp
                 else:
                     price = objBar.close - temp
-            objEntryOrder.p_price = GlobalVariables.objGeneric.roundToTickSize(price,objTicker.pip)
+            objEntryOrder.p_price = objBar.close 
+            objEntryOrder.e_price = GlobalVariables.objGeneric.roundToTickSize(price,objTicker.pip)
             objEntryOrder.p_qty = GlobalVariables.trade_qty
             if(objTicker.secType == "CASH"):
                 objEntryOrder.sl = GlobalVariables.objGeneric.calculate_sl_pip(action,objEntryOrder.p_price,objTicker.stopLoss,objTicker.pip)
@@ -84,7 +86,8 @@ class Orders():
                 else:
                     price = price - temp
             price = GlobalVariables.objGeneric.roundToTickSize(price,objTicker.pip)
-            objExitOrder.p_price = price
+            objExitOrder.p_price = objBar.close
+            objExitOrder.e_price = price
             objExitOrder.p_qty = GlobalVariables.trade_qty
             if(objEntryOrder.action == GlobalVariables.BUY):
                 objEntryOrder.Points = GlobalVariables.objGeneric.roundToTickSize(objExitOrder.p_price - objEntryOrder.p_price,objTicker.pip)

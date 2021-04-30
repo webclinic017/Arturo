@@ -169,11 +169,11 @@ class Main(GUI):
             data = []
             for obj in GlobalVariables.order_collections.values():
                 if(GlobalVariables.segment == GlobalVariables.CASH):
-                    data.append([obj.orderId,obj.parentOrderId,obj.symbol,obj.action,(calendar.day_name[obj.p_dt.weekday()])[:3],obj.p_dt,obj.p_price,obj.p_qty,obj.totalPip,obj.NET,obj.comm,obj.status,obj.sl,obj.target])
+                    data.append([obj.orderId,obj.parentOrderId,obj.symbol,obj.action,(calendar.day_name[obj.p_dt.weekday()])[:3],obj.p_dt,obj.p_price,obj.e_price,obj.p_qty,obj.totalPip,obj.NET,obj.comm,obj.status,obj.sl,obj.target])
                 else:
-                    data.append([obj.orderId,obj.parentOrderId,obj.symbol,obj.action,(calendar.day_name[obj.p_dt.weekday()])[:3],obj.p_dt,obj.p_price,obj.p_qty,obj.Points,obj.NET,obj.comm,obj.status,obj.sl,obj.target])
+                    data.append([obj.orderId,obj.parentOrderId,obj.symbol,obj.action,(calendar.day_name[obj.p_dt.weekday()])[:3],obj.p_dt,obj.p_price,obj.e_price,obj.p_qty,obj.Points,obj.NET,obj.comm,obj.status,obj.sl,obj.target])
             file = open(GlobalVariables.Report+"Trades.csv",'a', newline ='')
-            header = ["OrderID","Parent_OrderID","Symbol","Action","WeekDay","p_dt","p_price","p_qty","Pip/Points","NET","Comm","Status","StopLoss","Target"]
+            header = ["OrderID","Parent_OrderID","Symbol","Action","WeekDay","p_dt","p_price","e_price","p_qty","Pip/Points","NET","Comm","Status","StopLoss","Target"]
             with file:
                 write = csv.writer(file)
                 write.writerow(header)

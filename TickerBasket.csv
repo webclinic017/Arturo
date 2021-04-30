@@ -1,3 +1,5 @@
 Symbol,SecType,Exchange,Currency,Quantity,TickSize,StopLoss,Target,Spread,Start_Time_Hr,Start_Time_Min,Stop_Time_Hr,Stop_Time_Min,EOD_Hr,EOD_Min,weekDays,isEmaExit,isStochExit,Status
-AAPL,STK,SMART,USD,100,0.01,0.5,1,0.01,9,30,14,30,15,55,"mon,tue,wed,thu,fri",FALSE,FALSE,I
-GOOG,STK,SMART,USD,100,0.01,0.5,1,0.01,9,30,14,30,15,55,"mon,tue,wed,thu,fri",FALSE,FALSE,A
+AAPL,STK,SMART,USD,100,0.01,2,2,1,9,30,14,30,16,0,"mon,tue,wed,thu,fri",TRUE,TRUE,A
+NFLX,STK,SMART,USD,100,0.01,2,2,1,9,30,14,30,16,0,"mon,tue,wed,thu,fri",TRUE,TRUE,A
+GOOG,STK,SMART,USD,100,0.01,2,2,1,9,30,14,30,16,0,"mon,tue,wed,thu,fri",TRUE,TRUE,A
+TSLA,STK,SMART,USD,100,0.01,2,2,1,9,30,14,30,16,0,"mon,tue,wed,thu,fri",TRUE,TRUE,A

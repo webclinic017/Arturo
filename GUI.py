@@ -73,10 +73,10 @@ class GUI():
             #Init
             self.mainForm.title = "Tvisi"
             self.mainForm.geometry(str(width)+"x"+str(height))
-            self.TopFrame = Tkinter.Frame(self.mainForm,width=width,height=self.calculatePer(40,height))
+            self.TopFrame = Tkinter.Frame(self.mainForm,width=width,height=self.calculatePer(10,height))
             self.set_Top_Frame_GUI()
             self.TopFrame.pack(fill="both",expand=1)
-            self.set_Bottom_Frame_GUI(50)
+            self.set_Bottom_Frame_GUI(80)
             #self.mainForm.resizable(0,0)    
         except Exception as ex:
             Log.WriteLog(traceback.format_exc(),"__init__()")
@@ -140,96 +140,96 @@ class GUI():
             #Button
             self.btn_start = Tkinter.Button(self.TopFrame, text ="Start", command = self.btn_start_clickEvent,width=self.btn_width) #,width=self.btn_width,height=self.btn_height)
             self.btn_start.place(x=50,y=20)
-            #label 
-            lable11 = Tkinter.Label(self.TopFrame,text="Entry TF")
-            lable11.place(x=350,y=80)
-            #comboBox
-            entryTF = ttk.Combobox(self.TopFrame, width = 12, textvariable = self.selectedEntryTF) 
-            entryTF['values'] = ('1min','3mins','5mins','15mins','1hour')
-            entryTF.current(0)             
-            entryTF.place(x=350,y=100)
+            # #label 
+            # lable11 = Tkinter.Label(self.TopFrame,text="Entry TF")
+            # lable11.place(x=350,y=80)
+            # #comboBox
+            # entryTF = ttk.Combobox(self.TopFrame, width = 12, textvariable = self.selectedEntryTF) 
+            # entryTF['values'] = ('1min','3mins','5mins','15mins','1hour')
+            # entryTF.current(0)             
+            # entryTF.place(x=350,y=100)
 
-            #label
-            lable12 = Tkinter.Label(self.TopFrame,text="EMA Period-Long")
-            lable12.place(x=500,y=80)
+            # #label
+            # lable12 = Tkinter.Label(self.TopFrame,text="EMA Period-Long")
+            # lable12.place(x=500,y=80)
 
-            #textBox
-            self.txtBox_emaPeriodLong_text.set("5")
-            self.txtBox_emaPeriodLong = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_emaPeriodLong_text)
-            self.txtBox_emaPeriodLong.place(x=500,y=100)
+            # #textBox
+            # self.txtBox_emaPeriodLong_text.set("5")
+            # self.txtBox_emaPeriodLong = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_emaPeriodLong_text)
+            # self.txtBox_emaPeriodLong.place(x=500,y=100)
 
-            #label
-            label3 = Tkinter.Label(self.TopFrame,text="EMA Period-Short")
-            label3.place(x=650,y=80)
+            # #label
+            # label3 = Tkinter.Label(self.TopFrame,text="EMA Period-Short")
+            # label3.place(x=650,y=80)
 
-            #textBox
-            self.txtBox_emaPeriodShort_text.set("3")
-            self.txtBox_emaPeriodShort = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_emaPeriodShort_text)
-            self.txtBox_emaPeriodShort.place(x=650,y=100)            
+            # #textBox
+            # self.txtBox_emaPeriodShort_text.set("3")
+            # self.txtBox_emaPeriodShort = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_emaPeriodShort_text)
+            # self.txtBox_emaPeriodShort.place(x=650,y=100)            
 
-            #label
-            label4 = Tkinter.Label(self.TopFrame,text="Stochastic Period-1")
-            label4.place(x=800,y=80)
+            # #label
+            # label4 = Tkinter.Label(self.TopFrame,text="Stochastic Period-1")
+            # label4.place(x=800,y=80)
 
-            #textBox
-            self.txtBox_stochasticPeriod1_text.set("7")
-            self.txtBox_stochasticPeriod1 = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_stochasticPeriod1_text)
-            self.txtBox_stochasticPeriod1.place(x=800,y=100)
+            # #textBox
+            # self.txtBox_stochasticPeriod1_text.set("7")
+            # self.txtBox_stochasticPeriod1 = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_stochasticPeriod1_text)
+            # self.txtBox_stochasticPeriod1.place(x=800,y=100)
 
-            #label
-            label5 = Tkinter.Label(self.TopFrame,text="Stochastic Period-2")
-            label5.place(x=950,y=80)
+            # #label
+            # label5 = Tkinter.Label(self.TopFrame,text="Stochastic Period-2")
+            # label5.place(x=950,y=80)
 
-            #textBox
-            self.txtBox_stochasticPeriod2_text.set("7")
-            self.txtBox_stochasticPeriod2 = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_stochasticPeriod2_text)
-            self.txtBox_stochasticPeriod2.place(x=950,y=100)
+            # #textBox
+            # self.txtBox_stochasticPeriod2_text.set("7")
+            # self.txtBox_stochasticPeriod2 = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_stochasticPeriod2_text)
+            # self.txtBox_stochasticPeriod2.place(x=950,y=100)
 
-            #label
-            label6 = Tkinter.Label(self.TopFrame,text="Stochastic Period-3")
-            label6.place(x=1100,y=80)
+            # #label
+            # label6 = Tkinter.Label(self.TopFrame,text="Stochastic Period-3")
+            # label6.place(x=1100,y=80)
 
-            #textBox
-            self.txtBox_stochasticPeriod3_text.set("3")
-            self.txtBox_stochasticPeriod3 = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_stochasticPeriod3_text)
-            self.txtBox_stochasticPeriod3.place(x=1100,y=100)
+            # #textBox
+            # self.txtBox_stochasticPeriod3_text.set("3")
+            # self.txtBox_stochasticPeriod3 = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_stochasticPeriod3_text)
+            # self.txtBox_stochasticPeriod3.place(x=1100,y=100)
             
-            #label
-            label7 = Tkinter.Label(self.TopFrame,text="Comm %")
-            label7.place(x=350,y=160)
+            # #label
+            # label7 = Tkinter.Label(self.TopFrame,text="Comm %")
+            # label7.place(x=350,y=160)
 
-            #textBox
-            self.txtBox_slippage_text.set("0")
-            self.txtBox_slippage = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_slippage_text)
-            self.txtBox_slippage.place(x=350,y=180)
+            # #textBox
+            # self.txtBox_slippage_text.set("0")
+            # self.txtBox_slippage = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_slippage_text)
+            # self.txtBox_slippage.place(x=350,y=180)
 
-            #label
-            label8 = Tkinter.Label(self.TopFrame,text="Trade Qty")
-            label8.place(x=500,y=160)
+            # #label
+            # label8 = Tkinter.Label(self.TopFrame,text="Trade Qty")
+            # label8.place(x=500,y=160)
 
-            #textBox
-            self.txtBox_tradeQty_text.set("100000")
-            self.txtBox_tradeQty = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_tradeQty_text)
-            self.txtBox_tradeQty.place(x=500,y=180)
+            # #textBox
+            # self.txtBox_tradeQty_text.set("100000")
+            # self.txtBox_tradeQty = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_tradeQty_text)
+            # self.txtBox_tradeQty.place(x=500,y=180)
 
-            #label
-            label9 = Tkinter.Label(self.TopFrame,text="Long Exit (stoch)")
-            label9.place(x=650,y=160)
+            # #label
+            # label9 = Tkinter.Label(self.TopFrame,text="Long Exit (stoch)")
+            # label9.place(x=650,y=160)
 
-            #textBox
+            # #textBox
             
-            self.txtBox_longExitstoch_text.set("80")
-            self.txtBox_longExitstoch = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_longExitstoch_text)
-            self.txtBox_longExitstoch.place(x=650,y=180)
+            # self.txtBox_longExitstoch_text.set("80")
+            # self.txtBox_longExitstoch = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_longExitstoch_text)
+            # self.txtBox_longExitstoch.place(x=650,y=180)
 
-            #label
-            label10 = Tkinter.Label(self.TopFrame,text="Short Exit (stoch)")
-            label10.place(x=800,y=160)
+            # #label
+            # label10 = Tkinter.Label(self.TopFrame,text="Short Exit (stoch)")
+            # label10.place(x=800,y=160)
 
-            #TextBox
-            self.txtBox_shortExitstoch_text.set("20")
-            self.txtBox_shortExitstoch = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_shortExitstoch_text)
-            self.txtBox_shortExitstoch.place(x=800,y=180)
+            # #TextBox
+            # self.txtBox_shortExitstoch_text.set("20")
+            # self.txtBox_shortExitstoch = Tkinter.Entry(self.TopFrame,width=10,textvariable = self.txtBox_shortExitstoch_text)
+            # self.txtBox_shortExitstoch.place(x=800,y=180)
 
             # #label
             # label11 = Tkinter.Label(self.TopFrame,text="Start Trade (hr/Min)")

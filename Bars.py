@@ -1,7 +1,7 @@
 class Bars:
     def __init__(self):
         self.dt = None
-        self.prev_dt = None
+        self.dt_prev = None
         self.open_ = 0
         self.high = 0
         self.low = 0

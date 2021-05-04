@@ -23,7 +23,7 @@ class Main(GUI):
 
     def btn_start_clickEvent(self):
         try:
-            self.setParam()
+            #self.setParam()
             GlobalVariables.objGeneric.loadData()
             self.Init_calculation()
         except Exception as ex:
@@ -49,8 +49,8 @@ class Main(GUI):
                         objBar = objTicker.ohlc[dt]
                         if(objBar.stochastic == 0):
                             continue
-                        if(objBar.prev_dt in objTicker.ohlc):
-                            objBarPrev = objTicker.ohlc[objBar.prev_dt]
+                        if(objBar.dt_prev in objTicker.ohlc):
+                            objBarPrev = objTicker.ohlc[objBar.dt_prev]
                             if(objTicker.orderId == 0 and objBar.dt >= datetime(objBar.dt.year,objBar.dt.month,objBar.dt.day,GlobalVariables.startTradeHr,GlobalVariables.startTradeMin,0)
                             and objBar.dt < datetime(objBar.dt.year,objBar.dt.month,objBar.dt.day,GlobalVariables.endTradeHr,GlobalVariables.endTradeMin,0) ):
                                 
@@ -105,30 +105,33 @@ class Main(GUI):
                     if(dt in objTicker.ohlc):
                         objBar = objTicker.ohlc[dt]
                         objTicker.handyData_close.update({objBar.dt : objBar.close})
+                        objTicker.handy_close_longema.update({objBar.dt : objBar.close})
+                        objTicker.handy_close_shortema.update({objBar.dt : objBar.close})
+
                         objTicker.handyData_high.update({objBar.dt : objBar.high})
                         objTicker.handyData_low.update({objBar.dt : objBar.low})
-                        if(len(objTicker.handyData_close) >= GlobalVariables.stochasticPeriod):
-                            objBar.stochastic , objBar.stochastic_signal =  GlobalVariables.objGeneric.calculate_Stochastic([x for x in objTicker.handyData_high.values()],[x for x in objTicker.handyData_low.values()],[x for x in objTicker.handyData_close.values()],objTicker.pip,GlobalVariables.stochasticPeriod1,GlobalVariables.stochasticPeriod2,GlobalVariables.stochasticPeriod3) 
+                        if(len(objTicker.handyData_close) >= objTicker.stochasticPeriod):
+                            objBar.stochastic , objBar.stochastic_signal =  GlobalVariables.objGeneric.calculate_Stochastic([x for x in objTicker.handyData_high.values()],[x for x in objTicker.handyData_low.values()],[x for x in objTicker.handyData_close.values()],objTicker.pip,objTicker.stochasticPeriod1,objTicker.stochasticPeriod2,objTicker.stochasticPeriod3) 
                             for key in sorted(objTicker.handyData_close.keys()):
                                 objTicker.handyData_close.pop(key)
                                 objTicker.handyData_high.pop(key)
                                 objTicker.handyData_low.pop(key)
-                                #print(key)
+                                    #print(key)
                                 break
-                        if(len(objTicker.handyData_close) >= GlobalVariables.ema_LongPeriod):
-                            if(objBar.prev_dt in objTicker.ohlc):
-                                objBarPrev = objTicker.ohlc[objBar.prev_dt]
+                        if(len(objTicker.handy_close_longema) >= objTicker.ema_LongPeriod):
+                            if(objBar.dt_prev in objTicker.ohlc):
+                                objBarPrev = objTicker.ohlc[objBar.dt_prev]
                                 if(objBarPrev.ema_Long == 0):
-                                    objBar.ema_Long = GlobalVariables.objGeneric.sma([x for x in objTicker.handyData_close.values()],GlobalVariables.ema_LongPeriod,objTicker.pip)
+                                    objBar.ema_Long = GlobalVariables.objGeneric.sma([x for x in objTicker.handy_close_longema.values()],objTicker.ema_LongPeriod,objTicker.pip)
                                 else:
-                                    objBar.ema_Long = GlobalVariables.objGeneric.ema(objBar.close,objBarPrev.ema_Long,GlobalVariables.ema_LongPeriod,objTicker.pip)
-                        if(len(objTicker.handyData_close) >= GlobalVariables.ema_ShortPeriod):
-                            if(objBar.prev_dt in objTicker.ohlc):
-                                objBarPrev = objTicker.ohlc[objBar.prev_dt]
+                                    objBar.ema_Long = GlobalVariables.objGeneric.ema(objBar.close,objBarPrev.ema_Long,objTicker.ema_LongPeriod,objTicker.pip)
+                        if(len(objTicker.handy_close_shortema) >= objTicker.ema_ShortPeriod):
+                            if(objBar.dt_prev in objTicker.ohlc):
+                                objBarPrev = objTicker.ohlc[objBar.dt_prev]
                                 if(objBarPrev.ema_Short == 0):
-                                    objBar.ema_Short = GlobalVariables.objGeneric.sma([x for x in objTicker.handyData_close.values()],GlobalVariables.ema_ShortPeriod,objTicker.pip)
+                                    objBar.ema_Short = GlobalVariables.objGeneric.sma([x for x in objTicker.handy_close_shortema.values()],objTicker.ema_ShortPeriod,objTicker.pip)
                                 else:
-                                    objBar.ema_Short = GlobalVariables.objGeneric.ema(objBar.close,objBarPrev.ema_Short,GlobalVariables.ema_ShortPeriod,objTicker.pip)
+                                    objBar.ema_Short = GlobalVariables.objGeneric.ema(objBar.close,objBarPrev.ema_Short,objTicker.ema_ShortPeriod,objTicker.pip)
             self.messageToGUI("Init_Calculation Done !")
             self.dataToCSV()
             self.Simulate()

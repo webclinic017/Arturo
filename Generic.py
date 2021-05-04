@@ -17,9 +17,10 @@ class Generic:
 
     def loadHistoryData(self,objTicker):
         try:
+            selectedTimeFrame_collection = {60 :'1min',180:'3mins',300:'5mins',900:'15mins',3600:'1hour'}
             #timeFrame = ["1min",GlobalVariables.selectedTimeFrame]
-            timeFrame = [GlobalVariables.selectedTimeFrame]
-            for TF in timeFrame:
+            TF = selectedTimeFrame_collection[objTicker.TF]
+            if(True):
                 filePath = os.getcwd()+"\\HistoryData\\"+objTicker.symbol+"_"+TF+".csv"
                 flag = self.isFileExists(filePath)
                 if(flag):
@@ -39,9 +40,9 @@ class Generic:
                             objBar.close = float(ohlc["Close"])
                             objBar.volume = float(ohlc["Volume"])
                             if(not prev_dt == None):
-                                objBar.prev_dt = prev_dt
+                                objBar.dt_prev = prev_dt
                             prev_dt = objBar.dt
-                            if(TF == GlobalVariables.selectedTimeFrame):
+                            if(True):
                                 if(not objBar.dt in objTicker.ohlc):
                                     objTicker.ohlc[objBar.dt] = objBar
                                 if(not objBar.dt in GlobalVariables.DateTime_collection):
@@ -95,6 +96,18 @@ class Generic:
                     objTicker.endTradeMin = int(ticker['Stop_Time_Min'])
                     objTicker.EODExitHr = int(ticker['EOD_Hr'])
                     objTicker.EODExitMin = int(ticker['EOD_Min'])
+
+                    objTicker.TF = int(ticker['TimeFrame'])
+                    objTicker.stochasticPeriod1= int(ticker['Stoch1'])
+                    objTicker.stochasticPeriod2= int(ticker['Stoch2'])
+                    objTicker.stochasticPeriod3= int(ticker['Stoch3'])
+                    objTicker.ema_LongPeriod= int(ticker['EMALong'])
+                    objTicker.ema_ShortPeriod= int(ticker['EMAShort'])
+                    objTicker.longExitStoch = int(ticker['LongExit'])
+                    objTicker.ShortExitStoch = int(ticker['ShortExit'])
+
+                    objTicker.stochasticPeriod = objTicker.stochasticPeriod1 + objTicker.stochasticPeriod3   
+                                     
                     if(GlobalVariables.segment == None and objTicker.secType == GlobalVariables.STK):
                          GlobalVariables.segment = GlobalVariables.STK
                     elif(GlobalVariables.segment == None and objTicker.secType == GlobalVariables.CASH):

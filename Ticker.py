@@ -24,6 +24,18 @@ class Ticker:
         self.handyData_high = {}
         self.handyData_low = {}
         self.handyData_volume = {}
+        self.handy_close_longema = {}
+        self.handy_close_shortema = {}
+        # Indicators period and timeframe
+        self.TF = 0
+        self.stochasticPeriod1=5
+        self.stochasticPeriod2=5
+        self.stochasticPeriod3=3
+        self.ema_LongPeriod=5
+        self.ema_ShortPeriod=3
+        self.longExitStoch = 0
+        self.ShortExitStoch = 0
+        self.stochasticPeriod = 0        
         #Orders
         self.orderId=0
         self.isExit = False
